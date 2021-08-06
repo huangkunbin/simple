@@ -2,21 +2,22 @@
 package role_api
 
 import (
+	"google.golang.org/protobuf/proto"
 	"simple/lib/mynet"
 	"simple/lib/simpleapi"
 )
 
-func (api *RoleApi) ServiceID() byte {
+func (s *RoleApi) ServiceID() byte {
 	return 1
 }
-func (api *RoleApi) NewRequest(id byte) simpleapi.Message {
+func (s *RoleApi) NewRequest(id byte) simpleapi.Message {
 	switch id {
 	case 1:
 		return &LoginReq{}
 	}
 	return nil
 }
-func (api *RoleApi) NewResponse(id byte) simpleapi.Message {
+func (s *RoleApi) NewResponse(id byte) simpleapi.Message {
 	switch id {
 	case 1:
 		return &LoginRes{}
@@ -26,26 +27,38 @@ func (api *RoleApi) NewResponse(id byte) simpleapi.Message {
 func (s *RoleApi) HandleRequest(session *mynet.Session, req simpleapi.Message) {
 	switch req.MessageID() {
 	case 1:
-		session.Send(s.Add(session, req.(*LoginReq)))
+		session.Send(s.Login(session, req.(*LoginReq)))
 	default:
 		panic("Unhandled Message Type")
 	}
 }
-func (msg *LoginReq) ServiceID() byte {
+func (m *LoginReq) ServiceID() byte {
 	return 1
 }
-func (msg *LoginReq) MessageID() byte {
+func (m *LoginReq) MessageID() byte {
 	return 1
 }
-func (msg *LoginReq) Identity() string {
+func (m *LoginReq) Identity() string {
 	return "RoleApi.LoginReq"
 }
-func (msg *LoginRes) ServiceID() byte {
+func (m *LoginReq) Marshal() ([]byte, error) {
+	return proto.Marshal(m)
+}
+func (m *LoginReq) Unmarshal(p []byte) error {
+	return proto.Unmarshal(p, m)
+}
+func (m *LoginRes) ServiceID() byte {
 	return 1
 }
-func (msg *LoginRes) MessageID() byte {
+func (m *LoginRes) MessageID() byte {
 	return 1
 }
-func (msg *LoginRes) Identity() string {
+func (m *LoginRes) Identity() string {
 	return "RoleApi.LoginRes"
+}
+func (m *LoginRes) Marshal() ([]byte, error) {
+	return proto.Marshal(m)
+}
+func (m *LoginRes) Unmarshal(p []byte) error {
+	return proto.Unmarshal(p, m)
 }

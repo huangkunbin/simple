@@ -57,8 +57,6 @@ func genPackage(pkg *packageInfo) (code []byte) {
 	}
 
 	code = bytes.Replace(code, []byte("\n\n"), []byte("\n"), -1)
-	code = bytes.Replace(code, []byte("n = 0\n"), []byte("\n"), -1)
-	code = bytes.Replace(code, []byte("+ 0\n"), []byte("\n"), -1)
 	code, err = format.Source(code)
 	if err != nil {
 		fmt.Print(bf.String())

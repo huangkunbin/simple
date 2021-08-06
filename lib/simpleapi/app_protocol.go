@@ -8,8 +8,6 @@ import (
 	"net"
 	"simple/lib/mynet"
 	"time"
-
-	"google.golang.org/protobuf/proto"
 )
 
 func (app *App) newClientCodec(rw io.ReadWriter) (mynet.Codec, error) {
@@ -36,9 +34,9 @@ func (app *App) newRequest(serviceID, messageID byte) (Message, error) {
 		if msg := service.(Service).NewRequest(messageID); msg != nil {
 			return msg, nil
 		}
-		return nil, DecodeError{fmt.Sprintf("Unsupported Message Type: [%d, %d]", serviceID, messageID)}
+		return nil, fmt.Errorf("unsupported message type: [%d, %d]", serviceID, messageID)
 	}
-	return nil, DecodeError{fmt.Sprintf("Unsupported Service: [%d, %d]", serviceID, messageID)}
+	return nil, fmt.Errorf("unsupported service: [%d, %d]", serviceID, messageID)
 }
 
 func (app *App) newResponse(serviceID, messageID byte) (Message, error) {
@@ -46,9 +44,9 @@ func (app *App) newResponse(serviceID, messageID byte) (Message, error) {
 		if msg := service.(Service).NewResponse(messageID); msg != nil {
 			return msg, nil
 		}
-		return nil, DecodeError{fmt.Sprintf("Unsupported Message Type: [%d, %d]", serviceID, messageID)}
+		return nil, fmt.Errorf("unsupported message type: [%d, %d]", serviceID, messageID)
 	}
-	return nil, DecodeError{fmt.Sprintf("Unsupported Service: [%d, %d]", serviceID, messageID)}
+	return nil, fmt.Errorf("unsupported service: [%d, %d]", serviceID, messageID)
 }
 
 const packetHeadSize = 4 + 2
@@ -79,7 +77,7 @@ func (c *codec) Receive() (msg interface{}, err error) {
 	packetSize := int(binary.LittleEndian.Uint32(c.headBuf))
 
 	if packetSize > c.app.MaxRecvSize {
-		return nil, DecodeError{fmt.Sprintf("Too Large Receive Packet Size: %d", packetSize)}
+		return nil, fmt.Errorf("too large receive packet size: %d", packetSize)
 	}
 
 	packet := make([]byte, packetSize)
@@ -90,10 +88,10 @@ func (c *codec) Receive() (msg interface{}, err error) {
 			func() {
 				defer func() {
 					if panicErr := recover(); panicErr != nil {
-						err = DecodeError{panicErr}
+						err = fmt.Errorf("%v", panicErr)
 					}
 				}()
-				proto.Unmarshal(packet, msg1.(proto.Message))
+				msg1.Unmarshal(packet)
 			}()
 			msg = msg1
 		} else {
@@ -107,15 +105,15 @@ func (c *codec) Receive() (msg interface{}, err error) {
 func (c *codec) Send(m interface{}) (err error) {
 	msg := m.(Message)
 
-	pb, err := proto.Marshal(msg.(proto.Message))
+	pb, err := msg.Marshal()
 	if err != nil {
-		return EncodeError{err}
+		return err
 	}
 
 	packetSize := len(pb)
 
 	if packetSize > c.app.MaxSendSize {
-		panic(EncodeError{fmt.Sprintf("Too Large Send Packet Size: %d", packetSize)})
+		panic(fmt.Sprintf("too large send packet size: %d", packetSize))
 	}
 
 	packet := make([]byte, packetHeadSize+packetSize)

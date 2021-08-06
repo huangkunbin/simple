@@ -12,6 +12,14 @@ func main() {
 	genpath := flag.String("genpath", "", "generate path")
 	flag.Parse()
 
+	app := simpleapi.New(
+		simpleapi.SetReadBufSize(1024),
+		simpleapi.SetMaxRecvSize(65536),
+		simpleapi.SetMaxSendSize(65536),
+	)
+
+	registerApi(app)
+
 	if *gencode && *genpath != "" {
 		simpleapi.GenCode(*genpath, app)
 		return
@@ -21,6 +29,8 @@ func main() {
 	if err != nil {
 		log.Fatal("setup server failed:", err)
 	}
+	defer server.Stop()
+
 	go server.Serve()
 
 	client, err := app.Dial("tcp", server.Listener().Addr().String())
@@ -45,5 +55,4 @@ func main() {
 		log.Printf("AddRsp: %s", rsp.(*role_api.LoginRes).String())
 	}
 
-	server.Stop()
 }

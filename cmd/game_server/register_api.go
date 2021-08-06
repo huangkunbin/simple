@@ -5,8 +5,6 @@ import (
 	"simple/lib/simpleapi"
 )
 
-var app = simpleapi.New()
-
-func init() {
+func registerApi(app *simpleapi.App) {
 	app.Register(1, &role_api.RoleApi{})
 }

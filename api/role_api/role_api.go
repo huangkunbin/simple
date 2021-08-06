@@ -14,7 +14,7 @@ func (r *RoleApi) APIs() simpleapi.APIs {
 	}
 }
 
-func (r *RoleApi) Add(session *mynet.Session, req *LoginReq) *LoginRes {
+func (r *RoleApi) Login(session *mynet.Session, req *LoginReq) *LoginRes {
 	return &LoginRes{
 		UserName: req.UserName,
 	}

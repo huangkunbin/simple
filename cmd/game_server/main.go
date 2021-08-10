@@ -1,13 +1,19 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"log"
-	"simple/api/role_api"
+	"os"
+	"os/signal"
+	"simple/api"
 	"simple/lib/simpleapi"
+	"syscall"
 )
 
 func main() {
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 	gencode := flag.Bool("gencode", false, "generate code")
 	genpath := flag.String("genpath", "", "generate path")
 	flag.Parse()
@@ -18,7 +24,7 @@ func main() {
 		simpleapi.SetMaxSendSize(65536),
 	)
 
-	registerApi(app)
+	api.RegisterApi(app)
 
 	if *gencode && *genpath != "" {
 		simpleapi.GenCode(*genpath, app)
@@ -30,29 +36,18 @@ func main() {
 		log.Fatal("setup server failed:", err)
 	}
 	defer server.Stop()
-
 	go server.Serve()
 
-	client, err := app.Dial("tcp", server.Listener().Addr().String())
-	if err != nil {
-		log.Fatal("setup client failed:", err)
+	waitNotify(ctx)
+}
+
+func waitNotify(ctx context.Context) {
+	sigTERM := make(chan os.Signal, 1)
+	signal.Notify(sigTERM, os.Interrupt, syscall.SIGTERM)
+	select {
+	case <-ctx.Done():
+		log.Print("Done")
+	case <-sigTERM:
+		log.Print("killed")
 	}
-
-	for i := 0; i < 10; i++ {
-		err := client.Send(&role_api.LoginReq{
-			UserName: "hkb",
-			Password: "123456",
-		})
-		if err != nil {
-			log.Fatal("send failed:", err)
-		}
-
-		rsp, err := client.Receive()
-		if err != nil {
-			log.Fatal("recv failed:", err)
-		}
-
-		log.Printf("AddRsp: %s", rsp.(*role_api.LoginRes).String())
-	}
-
 }

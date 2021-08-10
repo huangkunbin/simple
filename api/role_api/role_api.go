@@ -1,6 +1,7 @@
 package role_api
 
 import (
+	"simple/biz"
 	"simple/lib/mynet"
 	"simple/lib/simpleapi"
 )
@@ -15,7 +16,8 @@ func (r *RoleApi) APIs() simpleapi.APIs {
 }
 
 func (r *RoleApi) Login(session *mynet.Session, req *LoginReq) *LoginRes {
+	userName := biz.Role.Login(req.UserName, req.Password)
 	return &LoginRes{
-		UserName: req.UserName,
+		UserName: userName,
 	}
 }

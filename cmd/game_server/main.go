@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"flag"
-	"log"
+
 	"os"
 	"os/signal"
 	"simple/api"
+	"simple/common/config"
+	"simple/common/log"
 	"simple/lib/simpleapi"
 	"syscall"
 )
@@ -14,6 +16,7 @@ import (
 func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
 	gencode := flag.Bool("gencode", false, "generate code")
 	genpath := flag.String("genpath", "", "generate path")
 	flag.Parse()
@@ -31,9 +34,11 @@ func main() {
 		return
 	}
 
+	log.UpdateLoggers(config.Cfg.LoggerLevel, config.Cfg.LoggerType)
+
 	server, err := app.Listen("tcp", "0.0.0.0:0", nil)
 	if err != nil {
-		log.Fatal("setup server failed:", err)
+		log.Error("setup server failed:", err)
 	}
 	defer server.Stop()
 	go server.Serve()
@@ -46,8 +51,8 @@ func waitNotify(ctx context.Context) {
 	signal.Notify(sigTERM, os.Interrupt, syscall.SIGTERM)
 	select {
 	case <-ctx.Done():
-		log.Print("Done")
+		log.Info("Done")
 	case <-sigTERM:
-		log.Print("killed")
+		log.Info("killed")
 	}
 }

@@ -1,14 +1,14 @@
 package simpleapi
 
 import (
-	"simple/lib/mynet"
+	"simple/lib/simplenet"
 )
 
 type Service interface {
 	ServiceID() byte
 	NewRequest(byte) Message
 	NewResponse(byte) Message
-	HandleRequest(*mynet.Session, Message)
+	HandleRequest(*simplenet.Session, Message)
 }
 
 type Message interface {

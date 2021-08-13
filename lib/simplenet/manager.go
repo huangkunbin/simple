@@ -1,4 +1,4 @@
-package mynet
+package simplenet
 
 import (
 	"context"

@@ -6,19 +6,19 @@ import (
 	"fmt"
 	"io"
 	"net"
-	"simple/lib/mynet"
+	"simple/lib/simplenet"
 	"time"
 )
 
-func (app *App) newClientCodec(rw io.ReadWriter) (mynet.Codec, error) {
+func (app *App) newClientCodec(rw io.ReadWriter) (simplenet.Codec, error) {
 	return app.newCodec(rw, app.newResponse), nil
 }
 
-func (app *App) newServerCodec(rw io.ReadWriter) (mynet.Codec, error) {
+func (app *App) newServerCodec(rw io.ReadWriter) (simplenet.Codec, error) {
 	return app.newCodec(rw, app.newRequest), nil
 }
 
-func (app *App) newCodec(rw io.ReadWriter, newMessage func(byte, byte) (Message, error)) mynet.Codec {
+func (app *App) newCodec(rw io.ReadWriter, newMessage func(byte, byte) (Message, error)) simplenet.Codec {
 	c := &codec{
 		app:        app,
 		conn:       rw.(net.Conn),

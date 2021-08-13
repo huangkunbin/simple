@@ -5,7 +5,7 @@ var appTemplate = `
 package {{Package}}
 
 import (
-	"simple/lib/mynet"
+	"simple/lib/simplenet"
 	"simple/lib/simpleapi"
 	"google.golang.org/protobuf/proto"
 )
@@ -40,7 +40,7 @@ func (s *{{.Name}}) NewResponse(id byte) (simpleapi.Message) {
 	return nil
 }
 
-func (s *{{.Name}}) HandleRequest(session *mynet.Session, req simpleapi.Message) {
+func (s *{{.Name}}) HandleRequest(session *simplenet.Session, req simpleapi.Message) {
 	switch req.MessageID() {
 	{{range .Handlers}}
 	case {{.ID}}:

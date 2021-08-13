@@ -2,7 +2,7 @@ package simpleapi
 
 import (
 	"net"
-	"simple/lib/mynet"
+	"simple/lib/simplenet"
 	"time"
 )
 
@@ -15,12 +15,12 @@ type App struct {
 	MaxSendSize int
 	RecvTimeout time.Duration
 	SendTimeout time.Duration
-	manager     *mynet.Manager
+	manager     *simplenet.Manager
 }
 
 func New(opts ...Option) *App {
 	app := &App{
-		manager:     mynet.NewManger(),
+		manager:     simplenet.NewManger(),
 		ReadBufSize: 1024,
 		MaxRecvSize: 64 * 1024,
 		MaxSendSize: 64 * 1024,
@@ -31,11 +31,11 @@ func New(opts ...Option) *App {
 	return app
 }
 
-func (app *App) Dial(network, address string) (*mynet.Session, error) {
-	return mynet.Dial(network, address, mynet.ProtocolFunc(app.newClientCodec))
+func (app *App) Dial(network, address string) (*simplenet.Session, error) {
+	return simplenet.Dial(network, address, simplenet.ProtocolFunc(app.newClientCodec))
 }
 
-func (app *App) Listen(network, address string, handler Handler) (*mynet.Server, error) {
+func (app *App) Listen(network, address string, handler Handler) (*simplenet.Server, error) {
 	listener, err := net.Listen(network, address)
 	if err != nil {
 		return nil, err
@@ -43,25 +43,25 @@ func (app *App) Listen(network, address string, handler Handler) (*mynet.Server,
 	return app.NewServer(listener, handler), nil
 }
 
-func (app *App) NewClient(conn net.Conn) *mynet.Session {
+func (app *App) NewClient(conn net.Conn) *simplenet.Session {
 	codec, _ := app.newClientCodec(conn)
 	return app.manager.NewSession(codec)
 }
 
-func (app *App) NewServer(listener net.Listener, handler Handler) *mynet.Server {
+func (app *App) NewServer(listener net.Listener, handler Handler) *simplenet.Server {
 	if handler == nil {
 		handler = &defaultHandler{}
 	}
-	return mynet.NewServer(
+	return simplenet.NewServer(
 		listener,
-		mynet.ProtocolFunc(app.newServerCodec),
-		mynet.HandlerFunc(func(session *mynet.Session) {
+		simplenet.ProtocolFunc(app.newServerCodec),
+		simplenet.HandlerFunc(func(session *simplenet.Session) {
 			app.handleSessoin(session, handler)
 		}),
 	)
 }
 
-func (app *App) handleSessoin(session *mynet.Session, handler Handler) {
+func (app *App) handleSessoin(session *simplenet.Session, handler Handler) {
 	defer session.Close()
 
 	if handler.InitSession(session) != nil {

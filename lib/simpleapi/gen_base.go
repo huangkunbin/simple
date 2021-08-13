@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
-	"simple/lib/mynet"
+	"simple/lib/simplenet"
 )
 
-var sessionType = reflect.TypeOf((*mynet.Session)(nil))
+var sessionType = reflect.TypeOf((*simplenet.Session)(nil))
 
 type APIs map[byte][2]interface{}
 

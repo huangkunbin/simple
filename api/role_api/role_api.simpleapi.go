@@ -3,8 +3,8 @@ package role_api
 
 import (
 	"google.golang.org/protobuf/proto"
-	"simple/lib/simpleapi"
-	"simple/lib/simplenet"
+	"simple/pkg/simpleapi"
+	"simple/pkg/simplenet"
 )
 
 func (s *RoleApi) ServiceID() byte {

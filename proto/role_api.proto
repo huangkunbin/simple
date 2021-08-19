@@ -11,3 +11,4 @@ message LoginReq {
 message LoginRes {
     string user_name = 1;
 }
+

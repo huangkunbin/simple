@@ -4,7 +4,7 @@ import (
 	"log"
 	"simple/api"
 	"simple/api/role_api"
-	"simple/lib/simpleapi"
+	"simple/pkg/simpleapi"
 )
 
 func main() {

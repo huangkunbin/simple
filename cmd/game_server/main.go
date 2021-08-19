@@ -7,9 +7,10 @@ import (
 	"os"
 	"os/signal"
 	"simple/api"
-	"simple/common/config"
-	"simple/common/log"
-	"simple/lib/simpleapi"
+	"simple/internal/config"
+	"simple/internal/log"
+	"simple/internal/mdb"
+	"simple/pkg/simpleapi"
 	"syscall"
 )
 
@@ -34,7 +35,12 @@ func main() {
 		return
 	}
 
+	config.InitConfig()
+
 	log.UpdateLoggers(config.Cfg.LoggerLevel, config.Cfg.LoggerType)
+
+	db := mdb.New(config.Cfg.ServerId)
+	db.Start(config.Cfg.DB, config.Cfg.SyncFileDir)
 
 	server, err := app.Listen("tcp", "0.0.0.0:0", nil)
 	if err != nil {

@@ -2,7 +2,7 @@ package api
 
 import (
 	"simple/api/role_api"
-	"simple/lib/simpleapi"
+	"simple/pkg/simpleapi"
 )
 
 func RegisterApi(app *simpleapi.App) {

@@ -6,6 +6,6 @@ workdir=$(pwd)
 
 cd $workdir/simple
 
-find . -name "*.simpleapi.go" | xargs rm -rf
+find . -name "*.simpleapi.go" | xargs rm
 
 go run ./cmd/game_server/ -gencode=true -genpath=$workdir

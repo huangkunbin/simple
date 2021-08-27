@@ -6,6 +6,12 @@ import (
 	"sync/atomic"
 )
 
+type ISession interface {
+	context.Context
+	Codec
+	IsClosed() bool
+}
+
 type Session struct {
 	ctx       context.Context
 	id        uint64
@@ -56,12 +62,4 @@ func (session *Session) Close() error {
 
 func (session *Session) IsClosed() bool {
 	return atomic.LoadInt32(&session.closeFlag) == 1
-}
-
-func (session *Session) Get(key interface{}) interface{} {
-	return session.ctx.Value(key)
-}
-
-func (session *Session) Set(key interface{}, val interface{}) {
-	session.ctx = context.WithValue(session.ctx, key, val)
 }

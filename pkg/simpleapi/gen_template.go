@@ -40,7 +40,7 @@ func (s *{{.Name}}) NewResponse(id byte) (simpleapi.Message) {
 	return nil
 }
 
-func (s *{{.Name}}) HandleRequest(session *simplenet.Session, req simpleapi.Message) {
+func (s *{{.Name}}) HandleRequest(session simplenet.ISession, req simpleapi.Message) {
 	switch req.MessageID() {
 	{{range .Handlers}}
 	case {{.ID}}:

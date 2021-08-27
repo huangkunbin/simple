@@ -24,7 +24,7 @@ func (s *RoleApi) NewResponse(id byte) simpleapi.Message {
 	}
 	return nil
 }
-func (s *RoleApi) HandleRequest(session *simplenet.Session, req simpleapi.Message) {
+func (s *RoleApi) HandleRequest(session simplenet.ISession, req simpleapi.Message) {
 	switch req.MessageID() {
 	case 1:
 		session.Send(s.Login(session, req.(*LoginReq)))

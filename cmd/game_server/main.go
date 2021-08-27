@@ -10,6 +10,7 @@ import (
 	"simple/internal/config"
 	"simple/internal/log"
 	"simple/internal/mdb"
+	"simple/internal/module"
 	"simple/pkg/simpleapi"
 	"syscall"
 )
@@ -41,6 +42,8 @@ func main() {
 
 	db := mdb.New(config.Cfg.ServerId)
 	db.Start(config.Cfg.DB, config.Cfg.SyncFileDir)
+
+	module.InitModule(db)
 
 	server, err := app.Listen("tcp", "0.0.0.0:0", nil)
 	if err != nil {

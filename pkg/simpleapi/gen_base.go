@@ -7,7 +7,7 @@ import (
 	"simple/pkg/simplenet"
 )
 
-var sessionType = reflect.TypeOf((*simplenet.Session)(nil))
+var sessionType = reflect.TypeOf((*simplenet.ISession)(nil)).Elem()
 
 type APIs map[byte][2]interface{}
 
@@ -96,7 +96,6 @@ func (service *ServiceType) registerReq(id byte, req interface{}) {
 		if method.Type.NumOut() == 1 {
 			rspType = method.Type.Out(0)
 		}
-
 		service.handlers = append(service.handlers, &HandlerMethod{
 			ID:          id,
 			Name:        method.Name,

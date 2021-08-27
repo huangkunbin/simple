@@ -15,7 +15,7 @@ func (r *RoleApi) APIs() simpleapi.APIs {
 	}
 }
 
-func (r *RoleApi) Login(session *simplenet.Session, req *LoginReq) *LoginRes {
+func (r *RoleApi) Login(session simplenet.ISession, req *LoginReq) *LoginRes {
 	userName := module.Role.Login(req.UserName, req.Password)
 	return &LoginRes{
 		UserName: userName,

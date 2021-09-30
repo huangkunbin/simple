@@ -7,6 +7,7 @@ import (
 
 type IRole interface {
 	Login(userName, password string) string
+	Create(userName, password string) string
 }
 
 var (

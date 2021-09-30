@@ -10,6 +10,12 @@ func Init(db *mdb.Database) *RoleMod {
 	return &RoleMod{db: db}
 }
 
-func (b *RoleMod) Login(userName, password string) string {
+func (mod *RoleMod) Login(userName, password string) string {
+	return userName
+}
+
+func (mod *RoleMod) Create(userName, password string) string {
+	// mod.db.GetRoleDB().InsertRoleBase(&mdb.RoleBase{})
+
 	return userName
 }

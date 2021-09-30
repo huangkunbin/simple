@@ -14,6 +14,8 @@ func (s *RoleApi) NewRequest(id byte) simpleapi.Message {
 	switch id {
 	case 1:
 		return &LoginReq{}
+	case 2:
+		return &CreateReq{}
 	}
 	return nil
 }
@@ -21,6 +23,8 @@ func (s *RoleApi) NewResponse(id byte) simpleapi.Message {
 	switch id {
 	case 1:
 		return &LoginRes{}
+	case 2:
+		return &CreateRes{}
 	}
 	return nil
 }
@@ -28,6 +32,8 @@ func (s *RoleApi) HandleRequest(session simplenet.ISession, req simpleapi.Messag
 	switch req.MessageID() {
 	case 1:
 		session.Send(s.Login(session, req.(*LoginReq)))
+	case 2:
+		session.Send(s.Create(session, req.(*CreateReq)))
 	default:
 		panic("Unhandled Message Type")
 	}
@@ -47,6 +53,21 @@ func (m *LoginReq) Marshal() ([]byte, error) {
 func (m *LoginReq) Unmarshal(p []byte) error {
 	return proto.Unmarshal(p, m)
 }
+func (m *CreateReq) ServiceID() byte {
+	return 1
+}
+func (m *CreateReq) MessageID() byte {
+	return 2
+}
+func (m *CreateReq) Identity() string {
+	return "RoleApi.CreateReq"
+}
+func (m *CreateReq) Marshal() ([]byte, error) {
+	return proto.Marshal(m)
+}
+func (m *CreateReq) Unmarshal(p []byte) error {
+	return proto.Unmarshal(p, m)
+}
 func (m *LoginRes) ServiceID() byte {
 	return 1
 }
@@ -60,5 +81,20 @@ func (m *LoginRes) Marshal() ([]byte, error) {
 	return proto.Marshal(m)
 }
 func (m *LoginRes) Unmarshal(p []byte) error {
+	return proto.Unmarshal(p, m)
+}
+func (m *CreateRes) ServiceID() byte {
+	return 1
+}
+func (m *CreateRes) MessageID() byte {
+	return 2
+}
+func (m *CreateRes) Identity() string {
+	return "RoleApi.CreateRes"
+}
+func (m *CreateRes) Marshal() ([]byte, error) {
+	return proto.Marshal(m)
+}
+func (m *CreateRes) Unmarshal(p []byte) error {
 	return proto.Unmarshal(p, m)
 }

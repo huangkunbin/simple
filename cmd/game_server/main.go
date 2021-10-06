@@ -23,10 +23,13 @@ func main() {
 	genpath := flag.String("genpath", "", "generate path")
 	flag.Parse()
 
+	server := module.NewServer()
+
 	app := simpleapi.New(
 		simpleapi.SetReadBufSize(1024),
 		simpleapi.SetMaxRecvSize(65536),
 		simpleapi.SetMaxSendSize(65536),
+		simpleapi.SetHandler(server),
 	)
 
 	api.RegisterApi(app)
@@ -45,12 +48,8 @@ func main() {
 
 	module.InitModule(db)
 
-	server, err := app.Listen("tcp", "0.0.0.0:0", nil)
-	if err != nil {
-		log.Error("setup server failed:", err)
-	}
+	server.Start("tcp", "0.0.0.0:5234", 1, db, app)
 	defer server.Stop()
-	go server.Serve()
 
 	waitNotify(ctx)
 }

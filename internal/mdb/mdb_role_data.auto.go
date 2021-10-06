@@ -63,42 +63,43 @@ func (rdb *RoleDB) LookupRoleData(id int64) *RoleData {
 	return nil
 }
 
-func (rdb *RoleDB) InsertRoleData(roleBase *RoleData) {
-	if roleBase._version != 0 {
+func (rdb *RoleDB) InsertRoleData(roleData *RoleData) {
+	if roleData._version != 0 {
 		panic("Dirty Insert RoleData")
 	}
-	roleBase._version++
-	roleBase._has = true
-	roleBase.RoleId = rdb.roleId
+	roleData._version++
+	roleData._has = true
+	roleData.RoleId = rdb.roleId
 	newId := atomic.AddInt64(&(rdb.rowIds.RoleData), 1)
-	roleBase.Id = newId
+	roleData.Id = newId
 	var done bool
 	for i := 0; i < len(rdb.tables.RoleData); i++ {
 		if !rdb.tables.RoleData[i]._has {
-			rdb.tables.RoleData[i] = *roleBase
+			rdb.tables.RoleData[i] = *roleData
 			done = true
 			break
 		}
 	}
 	if !done {
-		rdb.tables.RoleData = appendRoleData(rdb.tables.RoleData, roleBase)
+		rdb.tables.RoleData = appendRoleData(rdb.tables.RoleData, roleData)
 	}
-	rdb.addTransLog(&roleBaseTransLog{
+	rdb.addTransLog(&roleDataTransLog{
 		db:     rdb,
-		Table:  "role_base",
+		Table:  "role_data",
 		Action: TRANS_INSERT,
-		New:    *roleBase,
+		New:    *roleData,
 	})
 }
 
-func (rdb *RoleDB) DeleteRoleData(roleBase *RoleData) {
+func (rdb *RoleDB) DeleteRoleData(roleData *RoleData) {
 	for i := 0; i < len(rdb.tables.RoleData); i++ {
 		if !rdb.tables.RoleData[i]._has {
 			continue
 		}
-		if rdb.tables.RoleData[i].RoleId == roleBase.RoleId {
-			rdb.addTransLog(&roleBaseTransLog{
+		if rdb.tables.RoleData[i].RoleId == roleData.RoleId {
+			rdb.addTransLog(&roleDataTransLog{
 				db:     rdb,
+				Table:  "role_data",
 				Action: TRANS_DELETE,
 				Old:    rdb.tables.RoleData[i],
 			})
@@ -108,30 +109,31 @@ func (rdb *RoleDB) DeleteRoleData(roleBase *RoleData) {
 	}
 }
 
-func (rdb *RoleDB) UpdateRoleData(roleBase *RoleData) {
+func (rdb *RoleDB) UpdateRoleData(roleData *RoleData) {
 	for i := 0; i < len(rdb.tables.RoleData); i++ {
 		if !rdb.tables.RoleData[i]._has {
 			continue
 		}
-		if rdb.tables.RoleData[i].RoleId == roleBase.RoleId {
-			if roleBase._version != rdb.tables.RoleData[i]._version {
+		if rdb.tables.RoleData[i].RoleId == roleData.RoleId {
+			if roleData._version != rdb.tables.RoleData[i]._version {
 				panic("Dirty Update RoleData")
 			}
-			roleBase._version++
-			rdb.addTransLog(&roleBaseTransLog{
+			roleData._version++
+			rdb.addTransLog(&roleDataTransLog{
 				db:     rdb,
+				Table:  "role_data",
 				Action: TRANS_UPDATE,
-				New:    *roleBase,
+				New:    *roleData,
 				Old:    rdb.tables.RoleData[i],
 			})
-			rdb.tables.RoleData[i] = *roleBase
+			rdb.tables.RoleData[i] = *roleData
 			return
 		}
 	}
 	panic("Bad Update RoleData")
 }
 
-type roleBaseTransLog struct {
+type roleDataTransLog struct {
 	db     *RoleDB
 	Table  string
 	Action string
@@ -139,7 +141,7 @@ type roleBaseTransLog struct {
 	New    RoleData
 }
 
-func (l *roleBaseTransLog) Commit(tx *sql.Tx, sql *syncSQL) error {
+func (l *roleDataTransLog) Commit(tx *sql.Tx, sql *syncSQL) error {
 	switch l.Action {
 	case TRANS_INSERT:
 		stmt := sql.InsertRoleData
@@ -165,7 +167,7 @@ func (l *roleBaseTransLog) Commit(tx *sql.Tx, sql *syncSQL) error {
 	return nil
 }
 
-func (l *roleBaseTransLog) Rollback() {
+func (l *roleDataTransLog) Rollback() {
 	switch l.Action {
 	case TRANS_INSERT:
 		for i := 0; i < len(l.db.tables.RoleData); i++ {

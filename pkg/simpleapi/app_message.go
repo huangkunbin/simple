@@ -8,7 +8,7 @@ type Service interface {
 	ServiceID() byte
 	NewRequest(byte) Message
 	NewResponse(byte) Message
-	HandleRequest(*simplenet.Session, Message)
+	HandleRequest(simplenet.ISession, Message)
 }
 
 type Message interface {

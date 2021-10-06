@@ -16,34 +16,24 @@ func main() {
 
 	api.RegisterApi(app)
 
-	server, err := app.Listen("tcp", "0.0.0.0:0", nil)
-	if err != nil {
-		log.Fatal("setup server failed:", err)
-	}
-	defer server.Stop()
-
-	go server.Serve()
-
-	client, err := app.Dial("tcp", server.Listener().Addr().String())
+	client, err := app.Dial("tcp", "127.0.0.1:5234")
 	if err != nil {
 		log.Fatal("setup client failed:", err)
 	}
 
-	for i := 0; i < 10; i++ {
-		err := client.Send(&role_api.LoginReq{
-			UserName: "hkb",
-			Password: "123456",
-		})
-		if err != nil {
-			log.Fatal("send failed:", err)
-		}
-
-		rsp, err := client.Receive()
-		if err != nil {
-			log.Fatal("recv failed:", err)
-		}
-
-		log.Printf("AddRsp: %s", rsp.(*role_api.LoginRes).String())
+	err = client.Send(&role_api.LoginReq{
+		UserName: "hkb1",
+		Password: "123456",
+	})
+	if err != nil {
+		log.Fatal("send failed:", err)
 	}
+
+	rsp, err := client.Receive()
+	if err != nil {
+		log.Fatal("recv failed:", err)
+	}
+
+	log.Printf("AddRsp: %s", rsp.(*role_api.LoginRes).String())
 
 }

@@ -2,12 +2,12 @@ package module
 
 import (
 	"simple/internal/mdb"
-	"simple/internal/module/role"
+
+	"simple/pkg/simplenet"
 )
 
 type IRole interface {
-	Login(userName, password string) string
-	Create(userName, password string) string
+	Login(session simplenet.ISession, userName, password string) string
 }
 
 var (
@@ -15,5 +15,5 @@ var (
 )
 
 func InitModule(db *mdb.Database) {
-	Role = role.Init(db)
+	Role = InitRole(db)
 }

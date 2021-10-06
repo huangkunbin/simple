@@ -16,6 +16,7 @@ type App struct {
 	RecvTimeout time.Duration
 	SendTimeout time.Duration
 	manager     *simplenet.Manager
+	handler     Handler
 }
 
 func New(opts ...Option) *App {
@@ -24,6 +25,7 @@ func New(opts ...Option) *App {
 		ReadBufSize: 1024,
 		MaxRecvSize: 64 * 1024,
 		MaxSendSize: 64 * 1024,
+		handler:     &defaultHandler{},
 	}
 	for _, opt := range opts {
 		opt(app)
@@ -35,36 +37,33 @@ func (app *App) Dial(network, address string) (*simplenet.Session, error) {
 	return simplenet.Dial(network, address, simplenet.ProtocolFunc(app.newClientCodec))
 }
 
-func (app *App) Listen(network, address string, handler Handler) (*simplenet.Server, error) {
+func (app *App) Listen(network, address string) (*simplenet.Server, error) {
 	listener, err := net.Listen(network, address)
 	if err != nil {
 		return nil, err
 	}
-	return app.NewServer(listener, handler), nil
+	return app.NewServer(listener), nil
 }
 
-func (app *App) NewClient(conn net.Conn) *simplenet.Session {
+func (app *App) NewClient(conn net.Conn) simplenet.ISession {
 	codec, _ := app.newClientCodec(conn)
 	return app.manager.NewSession(codec)
 }
 
-func (app *App) NewServer(listener net.Listener, handler Handler) *simplenet.Server {
-	if handler == nil {
-		handler = &defaultHandler{}
-	}
+func (app *App) NewServer(listener net.Listener) *simplenet.Server {
 	return simplenet.NewServer(
 		listener,
 		simplenet.ProtocolFunc(app.newServerCodec),
-		simplenet.HandlerFunc(func(session *simplenet.Session) {
-			app.handleSessoin(session, handler)
+		simplenet.HandlerFunc(func(session simplenet.ISession) {
+			app.handleSessoin(session)
 		}),
 	)
 }
 
-func (app *App) handleSessoin(session *simplenet.Session, handler Handler) {
+func (app *App) handleSessoin(session simplenet.ISession) {
 	defer session.Close()
 
-	if handler.InitSession(session) != nil {
+	if app.handler.InitSession(session) != nil {
 		return
 	}
 
@@ -75,7 +74,7 @@ func (app *App) handleSessoin(session *simplenet.Session, handler Handler) {
 		}
 
 		req := msg.(Message)
-		handler.Transaction(session, req, func() {
+		app.handler.Transaction(session, req, func() {
 			app.services[req.ServiceID()].(Service).HandleRequest(session, req)
 		})
 	}

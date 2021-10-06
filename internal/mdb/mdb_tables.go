@@ -19,12 +19,14 @@ func (indexes *indexes) Init() {
 }
 
 type globalTables struct {
-	GlobalRoleBase map[int64]*GlobalRoleBase
+	GlobalRoleBase           map[int64]*GlobalRoleBase
+	GlobalRoleBaseByUserName map[string]*GlobalRoleBase
 }
 
 func NewGlobalTables() *globalTables {
 	return &globalTables{
-		GlobalRoleBase: make(map[int64]*GlobalRoleBase, 10000),
+		GlobalRoleBase:           make(map[int64]*GlobalRoleBase, 10000),
+		GlobalRoleBaseByUserName: make(map[string]*GlobalRoleBase, 10000),
 	}
 }
 

@@ -16,14 +16,14 @@ type Server struct {
 }
 
 type Handler interface {
-	HandleSession(*Session)
+	HandleSession(ISession)
 }
 
 var _ Handler = HandlerFunc(nil)
 
-type HandlerFunc func(*Session)
+type HandlerFunc func(ISession)
 
-func (f HandlerFunc) HandleSession(session *Session) {
+func (f HandlerFunc) HandleSession(session ISession) {
 	f(session)
 }
 

@@ -10,10 +10,12 @@ type ISession interface {
 	context.Context
 	Codec
 	IsClosed() bool
+	SetState(interface{})
+	GetState() interface{}
 }
 
 type Session struct {
-	ctx       context.Context
+	context.Context
 	id        uint64
 	codec     Codec
 	manager   *Manager
@@ -21,7 +23,7 @@ type Session struct {
 	sendMutex sync.RWMutex
 	closeFlag int32
 
-	State interface{}
+	state interface{}
 }
 
 func (session *Session) Receive() (interface{}, error) {
@@ -62,4 +64,12 @@ func (session *Session) Close() error {
 
 func (session *Session) IsClosed() bool {
 	return atomic.LoadInt32(&session.closeFlag) == 1
+}
+
+func (session *Session) SetState(state interface{}) {
+	session.state = state
+}
+
+func (session *Session) GetState() interface{} {
+	return session.state
 }

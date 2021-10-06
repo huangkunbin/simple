@@ -17,7 +17,7 @@ func NewManger() *Manager {
 	}
 }
 
-func (smap *Manager) NewSession(codec Codec) *Session {
+func (smap *Manager) NewSession(codec Codec) ISession {
 	smap.Lock()
 	defer smap.Unlock()
 	session := NewSession(codec, smap)
@@ -27,11 +27,11 @@ func (smap *Manager) NewSession(codec Codec) *Session {
 
 func NewSession(codec Codec, smap *Manager) *Session {
 	session := &Session{
-		ctx:     context.Background(),
 		codec:   codec,
 		manager: smap,
 		id:      atomic.AddUint64(&globalSessionId, 1),
 	}
+	session.Context = context.TODO()
 	return session
 }
 

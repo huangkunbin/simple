@@ -35,3 +35,9 @@ func SetSendTimeout(t time.Duration) Option {
 		options.SendTimeout = t
 	}
 }
+
+func SetHandler(h Handler) Option {
+	return func(options *App) {
+		options.handler = h
+	}
+}

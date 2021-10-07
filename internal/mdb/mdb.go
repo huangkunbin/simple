@@ -49,6 +49,10 @@ func (db *Database) Start(connStr, syncDir string) {
 
 	(&loader{db, conn, 0, 0, 0}).LoadGlobalTables()
 
+	for roleId := range db.globalTables.GlobalRoleBase {
+		db.NewRoleTables(roleId)
+	}
+
 	wg := &sync.WaitGroup{}
 	workerNum := runtime.GOMAXPROCS(-1)
 	for i := 0; i < workerNum; i++ {
@@ -218,10 +222,7 @@ func (RoleDB *RoleDB) RoleId() int64 {
 }
 
 func (db *Database) GetRoleDB(roleId int64) *RoleDB {
-	tables := db.getRoleTables(roleId)
-	if tables == nil {
-		return nil
-	}
+	tables := db.getOrCreateTables(roleId)
 	return &RoleDB{
 		db:        db,
 		roleId:    roleId,

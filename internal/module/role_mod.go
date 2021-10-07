@@ -21,19 +21,25 @@ func (mod *RoleMod) Login(session simplenet.ISession, userName, password string)
 
 	state := State(session)
 
-	if globalRole, exists := mod.db.LookupGlobalRoleBaseByUserName(userName); exists {
-		db := mod.db.GetRoleDB(globalRole.Id)
-		state.Database = db
-		state.RoleId = globalRole.Id
-	} else {
+	globalRole, exists := mod.db.LookupGlobalRoleBaseByUserName(userName)
+	if !exists {
 		globalRole = &mdb.GlobalRoleBase{
 			UserName: userName,
 			Password: password,
 		}
 		mod.db.InsertGlobalRoleBase(globalRole)
-		db := mod.db.GetRoleDB(globalRole.Id)
-		state.Database = db
-		state.RoleId = globalRole.Id
 	}
+	roleDB := mod.db.GetRoleDB(globalRole.Id)
+	state.Database = roleDB
+	state.RoleId = globalRole.Id
+
+	roleData := roleDB.LookupRoleData(globalRole.Id)
+	if roleData == nil {
+		roleData = &mdb.RoleData{}
+		roleDB.InsertRoleData(roleData)
+	}
+	roleData.Dianomd++
+	roleDB.UpdateRoleData(roleData)
+
 	return userName
 }

@@ -1,6 +1,7 @@
 package module
 
 import (
+	"runtime/debug"
 	"simple/internal/log"
 	"simple/internal/mdb"
 	"simple/pkg/simpleapi"
@@ -48,7 +49,7 @@ func (app *serverApp) InitSession(session simplenet.ISession) error {
 func (app *serverApp) Transaction(session simplenet.ISession, msg simpleapi.Message, work func()) {
 	defer func() {
 		if err := recover(); err != nil {
-			log.Error("Session failed:", err)
+			log.Error("Session failed: ", err, string(debug.Stack()))
 		}
 	}()
 	var (

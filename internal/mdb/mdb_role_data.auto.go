@@ -38,7 +38,7 @@ func (ld *loader) LoadRoleData() {
 			RoleId:   vRoleId,
 			Dianomd:  vDianomd,
 		}
-		appendRoleData(rdb.RoleData, row)
+		rdb.RoleData = appendRoleData(rdb.RoleData, row)
 	}
 }
 
@@ -161,7 +161,7 @@ func (l *roleDataTransLog) Commit(tx *sql.Tx, sql *syncSQL) error {
 			l.New.Id,
 			l.New.RoleId,
 			l.New.Dianomd,
-		)
+			l.New.Id)
 		return err
 	}
 	return nil

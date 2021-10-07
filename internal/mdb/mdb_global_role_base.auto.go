@@ -36,6 +36,7 @@ func (ld *loader) LoadGlobalRoleBase() {
 			Password: vPassword,
 		}
 		ld.db.globalTables.GlobalRoleBase[row.Id] = row
+		ld.db.globalTables.GlobalRoleBaseByUserName[row.UserName] = row
 	}
 }
 
@@ -146,7 +147,7 @@ func (l *gloablRoleBaseTransLog) Commit(tx *sql.Tx, sql *syncSQL) error {
 			l.New.Id,
 			l.New.UserName,
 			l.New.Password,
-		)
+			l.New.Id)
 		return err
 	}
 	return nil

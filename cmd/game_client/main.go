@@ -22,7 +22,7 @@ func main() {
 	}
 
 	err = client.Send(&role_api.LoginReq{
-		UserName: "hkb1",
+		UserName: "test2",
 		Password: "123456",
 	})
 	if err != nil {
